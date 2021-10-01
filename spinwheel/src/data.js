@@ -1,0 +1,18 @@
+export const myDataList = [
+  {name: 'AA', url: ''},
+  {name: 'BB', url: ''},
+  {name: 'CC', url: ''},
+  {name: 'DD', url: ''},
+  {name: 'EE', url: ''},
+  {name: 'FF', url: ''},
+  {name: 'GG', url: ''},
+  {name: 'HH', url: ''},
+  {name: 'II', url: ''},
+  {name: 'JJ', url: ''},
+  {name: 'KK', url: ''},
+  {name: 'LL', url: ''},
+  {name: 'MM', url: ''},
+  {name: 'NN', url: ''},
+  {name: 'OO', url: ''},
+  {name: 'PP', url: ''},
+];
