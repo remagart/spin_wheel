@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, Pressable} from 'react-native';
 import {myDataList} from './src/data';
 
 const {width: ScreenWidth, height: ScreenHeight} = Dimensions.get('screen');
@@ -12,19 +12,14 @@ export default function App() {
   const selectedIdx = useRef(12);
   const [selectedNum, setselectedNum] = useState(selectedIdx.current);
   const timer = useRef(null);
+  const [btnOpacity, setbtnOpacity] = useState(1);
 
   useEffect(() => {
     if (myDataList) {
       setdata(myDataList);
     }
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (data && timer.current == null) {
+    if (myDataList) {
       timer.current = setInterval(() => {
         selectedIdx.current++;
         if (selectedIdx.current >= TOTAL_AMOUNT) {
@@ -33,7 +28,18 @@ export default function App() {
         setselectedNum(selectedIdx.current);
       }, 1000);
     }
-  }, [data, selectedNum]);
+
+    return () => {
+      clearInterval(timer.current);
+    };
+  }, []);
+
+  function onClicked() {
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
+    }
+  }
 
   function renderItem(key, idx) {
     // console.log("aa", idx);
@@ -91,10 +97,28 @@ export default function App() {
     );
   }
 
+  function renderBtn() {
+    return (
+      <Pressable
+        onPress={onClicked}
+        onPressIn={() => setbtnOpacity(0.2)}
+        onPressOut={() => setbtnOpacity(1)}>
+        <View style={[styles.btn, {opacity: btnOpacity}]}>
+          <Text>Clicked!</Text>
+        </View>
+      </Pressable>
+    );
+  }
+
+  function renderPanel() {
+    return <View style={styles.panel}>{renderBtn()}</View>;
+  }
+
   return (
     <View style={styles.container}>
       {myDataList !== null ? renderContainer() : null}
-      <Text>123</Text>
+      <View style={{height: 32}} />
+      {renderPanel()}
     </View>
   );
 }
@@ -137,5 +161,18 @@ const styles = StyleSheet.create({
     borderBottomColor: 'purple',
     borderEndColor: 'purple',
     zIndex: 100,
+  },
+  btn: {
+    width: 200,
+    height: 50,
+    backgroundColor: 'yellow',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  panel: {
+    marginHorizontal: (ScreenWidth - 200) / 2,
   },
 });
