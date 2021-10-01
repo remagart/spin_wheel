@@ -1,36 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {myDataList} from './src/data';
 
 const {width: ScreenWidth, height: ScreenHeight} = Dimensions.get('screen');
-const ONE_WIDTH = ScreenWidth / 5;
+const LINE_AMMOUNT = 5;
+const TOTAL_AMOUNT = LINE_AMMOUNT * 4 - 4;
+const ONE_WIDTH = ScreenWidth / LINE_AMMOUNT;
 
 export default function App() {
-  let [data, setdata] = useState(null);
+  const [data, setdata] = useState(null);
+  const selectedIdx = useRef(12);
+  const [selectedNum, setselectedNum] = useState(selectedIdx.current);
+  const timer = useRef(null);
 
   useEffect(() => {
     if (myDataList) {
       setdata(myDataList);
     }
+
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
+
+  useEffect(() => {
+    if (data && timer.current == null) {
+      timer.current = setInterval(() => {
+        selectedIdx.current++;
+        if (selectedIdx.current >= TOTAL_AMOUNT) {
+          selectedIdx.current = 0;
+        }
+        setselectedNum(selectedIdx.current);
+      }, 1000);
+    }
+  }, [data, selectedNum]);
 
   function renderItem(key, idx) {
     // console.log("aa", idx);
+    if (!data || !data[idx]) {
+      return null;
+    }
+    const selectStyle = idx === selectedNum ? styles.selected : {};
     return (
-      <View key={key} style={styles.itemView}>
+      <View key={key} style={[styles.itemView, selectStyle]}>
         <Text>{data[idx].name}</Text>
       </View>
     );
   }
 
   function renderRow(isFirst = true) {
-    const arr = new Array(4).fill(0);
-    const start = isFirst ? 0 : 8;
+    const arr = new Array(LINE_AMMOUNT - 1).fill(0);
+    const start = isFirst ? 0 : (LINE_AMMOUNT - 1) * 2;
     const marginLeft = isFirst ? {} : {marginLeft: ONE_WIDTH};
     return (
       <View style={[styles.rowView, marginLeft]}>
         {arr.map((item, index) => {
-          return renderItem(`row-${start + index}`, start + index);
+          let tempIdx = start + LINE_AMMOUNT - 2;
+          tempIdx = isFirst ? start + index : tempIdx - index;
+          return renderItem(`row-${tempIdx}`, tempIdx);
         })}
       </View>
     );
@@ -38,16 +65,15 @@ export default function App() {
 
   function renderColumn(isLeft = true) {
     const posStyle = isLeft ? {left: 0} : {right: 0};
-    const arr = new Array(4).fill(0);
-    const start = isLeft ? 12 : 4;
+    const arr = new Array(LINE_AMMOUNT - 1).fill(0);
+    const start = isLeft ? TOTAL_AMOUNT - LINE_AMMOUNT + 1 : LINE_AMMOUNT - 1;
     const marginTop = isLeft ? {marginTop: ONE_WIDTH} : {};
     return (
       <View style={[styles.columnView, posStyle, marginTop]}>
         {arr.map((item, index) => {
-          if (start + index === 16) {
-            return null;
-          }
-          return renderItem(`col-${start + index}`, start + index);
+          let tempIdx = start + LINE_AMMOUNT - 2;
+          tempIdx = isLeft ? tempIdx - index : start + index;
+          return renderItem(`col-${tempIdx}`, tempIdx);
         })}
       </View>
     );
@@ -102,5 +128,14 @@ const styles = StyleSheet.create({
     borderEndWidth: 1,
     borderBottomColor: '#000',
     borderBottomWidth: 1,
+  },
+  selected: {
+    borderColor: 'purple',
+    borderWidth: 5,
+    borderEndWidth: 5,
+    borderBottomWidth: 5,
+    borderBottomColor: 'purple',
+    borderEndColor: 'purple',
+    zIndex: 100,
   },
 });
