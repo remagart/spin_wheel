@@ -6,6 +6,7 @@ import {
   Dimensions,
   Pressable,
   Image,
+  ImageBackground,
 } from 'react-native';
 import {myDataList} from './src/data';
 
@@ -13,6 +14,7 @@ const {width: ScreenWidth, height: ScreenHeight} = Dimensions.get('screen');
 const LINE_AMMOUNT = 5;
 const TOTAL_AMOUNT = LINE_AMMOUNT * 4 - 4;
 const ONE_WIDTH = ScreenWidth / LINE_AMMOUNT;
+const BLACKCAT = 'https://photo.16pic.com/00/53/69/16pic_5369835_b.jpg';
 
 const BTN_TEXT = {
   start: '開始！',
@@ -90,18 +92,11 @@ export default function App() {
     }
     const selectStyle = idx === selectedNum ? styles.selected : {};
 
-    const TXT = <Text style={styles.avaterTxt}>{data[idx].name}</Text>;
+    const img =
+      data[idx].url && data[idx].url !== '' ? data[idx].url : BLACKCAT;
     return (
       <View key={key} style={[styles.itemView, selectStyle]}>
-        {data[idx].url && data[idx].url !== '' ? (
-          <Image
-            source={{uri: data[idx].url}}
-            style={styles.imgSize}
-            resizeMode="cover"
-          />
-        ) : (
-          TXT
-        )}
+        <Image source={{uri: img}} style={styles.imgSize} resizeMode="cover" />
       </View>
     );
   }
@@ -137,12 +132,29 @@ export default function App() {
     );
   }
 
+  function renderMiddle() {
+    const img = (data && data[selectedNum].url) || BLACKCAT;
+    const name = (data && data[selectedNum].name) || '???';
+    return (
+      <View style={styles.middleView}>
+        <ImageBackground
+          source={{uri: img}}
+          style={styles.middleImg}
+          resizeMode="cover">
+          <View style={styles.avaterView}>
+            <Text style={styles.avaterTxt}>{name}</Text>
+          </View>
+        </ImageBackground>
+      </View>
+    );
+  }
+
   function renderContainer() {
     return (
       <View style={styles.containerView}>
         {renderRow()}
         {renderColumn()}
-        <View style={{flex: 1}} />
+        {renderMiddle()}
         {renderRow(false)}
         {renderColumn(false)}
       </View>
@@ -166,8 +178,17 @@ export default function App() {
     return <View style={styles.panel}>{renderBtn()}</View>;
   }
 
+  function renderHeader() {
+    return (
+      <View style={styles.header}>
+        <Text style={styles.headerTxt}>抽抽看</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
+      {renderHeader()}
       {myDataList !== null ? renderContainer() : null}
       <View style={{height: 32}} />
       {renderPanel()}
@@ -178,12 +199,24 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: '#DFDFDF',
+  },
+  header: {
+    width: '100%',
+    height: 60,
+    justifyContent: 'center',
+    paddingLeft: 16,
+    marginBottom: 32,
+    backgroundColor: 'rgba(17,153,255,0.55)',
+  },
+  headerTxt: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: 'bold',
   },
   containerView: {
     width: ScreenWidth,
     height: ScreenWidth,
-    backgroundColor: 'red',
   },
   rowView: {
     width: ScreenWidth - ONE_WIDTH,
@@ -203,18 +236,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   selected: {
-    borderColor: 'purple',
+    borderColor: '#1199FF',
     borderWidth: 5,
-    borderEndWidth: 5,
-    borderBottomWidth: 5,
-    borderBottomColor: 'purple',
-    borderEndColor: 'purple',
-    zIndex: 100,
   },
   btn: {
     width: 200,
     height: 50,
-    backgroundColor: 'yellow',
+    backgroundColor: '#1199FF',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'transparent',
@@ -227,13 +255,33 @@ const styles = StyleSheet.create({
   btntxt: {
     fontSize: 18,
     lineHeight: 21,
+    color: '#FFF',
+  },
+  avaterView: {
+    backgroundColor: '#E6E6E6',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
   },
   avaterTxt: {
-    fontSize: 11,
-    lineHeight: 15,
+    fontSize: 15,
+    lineHeight: 19,
+    fontWeight: 'bold',
+    color: '#000',
   },
   imgSize: {
     width: ONE_WIDTH,
     height: ONE_WIDTH,
+  },
+  middleView: {
+    flex: 1,
+  },
+  middleImg: {
+    width: ScreenWidth - ONE_WIDTH * 2,
+    height: ScreenWidth - ONE_WIDTH * 2,
+    marginLeft: ONE_WIDTH,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 16,
   },
 });
