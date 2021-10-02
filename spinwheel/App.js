@@ -1,5 +1,12 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {View, Text, StyleSheet, Dimensions, Pressable} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Pressable,
+  Image,
+} from 'react-native';
 import {myDataList} from './src/data';
 
 const {width: ScreenWidth, height: ScreenHeight} = Dimensions.get('screen');
@@ -82,9 +89,19 @@ export default function App() {
       return null;
     }
     const selectStyle = idx === selectedNum ? styles.selected : {};
+
+    const TXT = <Text style={styles.avaterTxt}>{data[idx].name}</Text>;
     return (
       <View key={key} style={[styles.itemView, selectStyle]}>
-        <Text>{data[idx].name}</Text>
+        {data[idx].url && data[idx].url !== '' ? (
+          <Image
+            source={{uri: data[idx].url}}
+            style={styles.imgSize}
+            resizeMode="cover"
+          />
+        ) : (
+          TXT
+        )}
       </View>
     );
   }
@@ -171,22 +188,19 @@ const styles = StyleSheet.create({
   rowView: {
     width: ScreenWidth - ONE_WIDTH,
     height: ONE_WIDTH,
-    backgroundColor: 'blue',
+    backgroundColor: '#FFF',
     flexDirection: 'row',
   },
   columnView: {
     width: ONE_WIDTH,
     height: ScreenWidth - ONE_WIDTH,
-    backgroundColor: 'yellow',
+    backgroundColor: '#FFF',
     position: 'absolute',
   },
   itemView: {
     width: ONE_WIDTH,
     height: ONE_WIDTH,
-    borderEndColor: '#000',
-    borderEndWidth: 1,
-    borderBottomColor: '#000',
-    borderBottomWidth: 1,
+    overflow: 'hidden',
   },
   selected: {
     borderColor: 'purple',
@@ -213,5 +227,13 @@ const styles = StyleSheet.create({
   btntxt: {
     fontSize: 18,
     lineHeight: 21,
+  },
+  avaterTxt: {
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  imgSize: {
+    width: ONE_WIDTH,
+    height: ONE_WIDTH,
   },
 });
