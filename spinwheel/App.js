@@ -24,23 +24,34 @@ const BTN_TEXT = {
 
 export default function App() {
   const [data, setdata] = useState(null);
-  const selectedIdx = useRef(12);
+  const selectedIdx = useRef(0);
   const [selectedNum, setselectedNum] = useState(selectedIdx.current);
   const timer = useRef(null);
   const [btnOpacity, setbtnOpacity] = useState(1);
   const [btntxt, setbtntxt] = useState(BTN_TEXT.start);
 
   useEffect(() => {
-    if (myDataList) {
-      setdata(myDataList);
-    }
+    init();
 
     return () => {
       clearInterval(timer.current);
     };
   }, []);
 
+  function init() {
+    function shuffle(input) {
+      input.sort(() => Math.random() - 0.5);
+    }
+
+    if (myDataList) {
+      const list = myDataList.slice();
+      shuffle(list);
+      setdata(list);
+    }
+  }
+
   function onClicked() {
+    init();
     if (timer.current == null && data) {
       setbtntxt(BTN_TEXT.stop);
       timer.current = setInterval(() => {
