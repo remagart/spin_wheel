@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {View, Text, StyleSheet, Dimensions, Pressable} from 'react-native';
 import {myDataList} from './src/data';
 
@@ -7,26 +7,23 @@ const LINE_AMMOUNT = 5;
 const TOTAL_AMOUNT = LINE_AMMOUNT * 4 - 4;
 const ONE_WIDTH = ScreenWidth / LINE_AMMOUNT;
 
+const BTN_TEXT = {
+  start: '開始！',
+  stop: '停止 😀',
+  continued: '停止中... 🎲',
+};
+
 export default function App() {
   const [data, setdata] = useState(null);
   const selectedIdx = useRef(12);
   const [selectedNum, setselectedNum] = useState(selectedIdx.current);
   const timer = useRef(null);
   const [btnOpacity, setbtnOpacity] = useState(1);
+  const [btntxt, setbtntxt] = useState(BTN_TEXT.start);
 
   useEffect(() => {
     if (myDataList) {
       setdata(myDataList);
-    }
-
-    if (myDataList) {
-      timer.current = setInterval(() => {
-        selectedIdx.current++;
-        if (selectedIdx.current >= TOTAL_AMOUNT) {
-          selectedIdx.current = 0;
-        }
-        setselectedNum(selectedIdx.current);
-      }, 1000);
     }
 
     return () => {
@@ -35,11 +32,49 @@ export default function App() {
   }, []);
 
   function onClicked() {
-    if (timer.current) {
+    if (timer.current == null && data) {
+      setbtntxt(BTN_TEXT.stop);
+      timer.current = setInterval(() => {
+        moveSelected();
+      }, 100);
+    } else if (timer.current != null) {
+      setbtntxt(BTN_TEXT.continued);
       clearInterval(timer.current);
       timer.current = null;
+      almostStop(100);
     }
   }
+
+  function almostStop(speed) {
+    function fn() {
+      speed += 100;
+      clearInterval(timer.current);
+      timer.current = null;
+      if (speed > 1000) {
+        clearInterval(timer.current);
+        timer.current = null;
+        const jump_one = setTimeout(() => {
+          clearTimeout(jump_one);
+          const isJump = !!Math.floor(Math.random() * 2);
+          isJump && moveSelected();
+          setbtntxt(BTN_TEXT.start);
+        }, 1500);
+      } else {
+        timer.current = setInterval(fn, speed);
+        moveSelected();
+      }
+    }
+
+    timer.current = setInterval(fn, speed);
+  }
+
+  const moveSelected = useCallback(() => {
+    selectedIdx.current++;
+    if (selectedIdx.current >= TOTAL_AMOUNT) {
+      selectedIdx.current = 0;
+    }
+    setselectedNum(selectedIdx.current);
+  }, []);
 
   function renderItem(key, idx) {
     // console.log("aa", idx);
@@ -104,7 +139,7 @@ export default function App() {
         onPressIn={() => setbtnOpacity(0.2)}
         onPressOut={() => setbtnOpacity(1)}>
         <View style={[styles.btn, {opacity: btnOpacity}]}>
-          <Text>Clicked!</Text>
+          <Text style={styles.btntxt}>{btntxt}</Text>
         </View>
       </Pressable>
     );
@@ -174,5 +209,9 @@ const styles = StyleSheet.create({
   },
   panel: {
     marginHorizontal: (ScreenWidth - 200) / 2,
+  },
+  btntxt: {
+    fontSize: 18,
+    lineHeight: 21,
   },
 });
