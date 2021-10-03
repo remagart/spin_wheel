@@ -14,7 +14,7 @@ class MyMiddle extends StatelessWidget {
           children: [
             MyColumn(),
             MyCenter(),
-            MyColumn(),
+            MyColumn(isLeft: false),
           ],
         ));
   }

@@ -14,7 +14,7 @@ class Panel extends StatelessWidget {
         children: [
           MyRowLine(),
           MyMiddle(),
-          MyRowLine(),
+          MyRowLine(isFirst: false),
         ],
       ),
     );
